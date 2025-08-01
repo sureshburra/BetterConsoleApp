@@ -1,4 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Serilog;
 namespace BetterConsoleApp;
 
@@ -15,7 +18,19 @@ class Program
             .WriteTo.Console()
             .CreateLogger();
 
-            Log.Logger.Information("Application starting...");
+        Log.Logger.Information("Application starting...");
+
+        var host = Host.CreateDefaultBuilder()
+            .ConfigureServices((context, services) =>
+            {
+                services.AddTransient<IGreetingService, GreetingService>();
+
+            })
+            .UseSerilog()
+            .Build();
+
+        var svc = ActivatorUtilities.CreateInstance<GreetingService>(host.Services);
+        svc.Run();
     }
 
 
